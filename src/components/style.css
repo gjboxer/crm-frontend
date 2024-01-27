@@ -1,0 +1,32 @@
+.edit-button {
+    border: 1px solid rgb(61, 106, 217);
+    color: rgb(61, 106, 217);
+    margin-right: 2px;
+}
+
+.save-button {
+    border: 1px solid rgb(40, 213, 43);
+    color: rgb(40, 213, 43);
+    margin-right: 2px;
+}
+
+.delete-button {
+    color: rgb(239, 9, 37);
+    border: 1px solid rgb(239, 9, 37);
+}
+
+.bulk-delete {
+    margin-left: 10px;
+    border: 1px solid rgb(239, 9, 37);
+    background: rgba(255, 0, 0, 0.2);
+}
+
+.jump-button {
+    border: 1px solid rgb(61, 106, 217);
+    color: rgb(45, 78, 155);
+    margin-right: 5px;
+}
+
+.selected-row {
+    background-color: #868686;
+}
