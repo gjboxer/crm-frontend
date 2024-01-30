@@ -29,7 +29,7 @@ const App = () => {
     'password': password,
   };
   try {
-    const response = await axios.post('http://crm.voyagerstales.com/account/login', data);
+    const response = await axios.post('http://127.0.0.1:8000/account/login', data);
     if(response?.data?.user?.Token) {
       window.localStorage.setItem("user", JSON.stringify(response.data.user));
       setIsAuthenticated(true);
@@ -48,7 +48,7 @@ const App = () => {
       'password': password,
     };
     try {
-      const response = await axios.post('http://crm.voyagerstales.com/account/sign-up', data);
+      const response = await axios.post('http://127.0.0.1:8000/account/sign-up', data);
       if(response?.data?.user?.Token) {
         window.localStorage.setItem("user", JSON.stringify(response.data.user));
         setIsAuthenticated(true);

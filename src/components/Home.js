@@ -33,10 +33,11 @@ class Home extends React.Component {
 
     componentDidMount() {
         this.fetchData();
+        this.fetchAgents();
         const token = JSON.parse(window.localStorage.getItem('user')).Token
         //  prod url='http://crm.voyagerstales.com/categories/api/'
         // dev url='http://127.0.0.1:8000/categories/api/'
-        axios.get(`http://crm.voyagerstales.com/categories/api/`, { headers: { Authorization: `Token ${token}` } })
+        axios.get(`http://127.0.0.1:8000/categories/api/`, { headers: { Authorization: `Token ${token}` } })
             .then(response => {
                 const categoryOptions = response.data.results.map(item => item);
                 this.setState({ categoryOptions });
@@ -52,11 +53,28 @@ class Home extends React.Component {
         }
     }
 
+    fetchAgents = () => {
+        const token = JSON.parse(window.localStorage.getItem('user')).Token
+        axios.get(`http://127.0.0.1:8000/account/list`
+            , { headers: { Authorization: `Token ${token}` } })
+            .then(response => {
+                const agentOptions = response.data.map(item => ({
+                    ...item,
+                    key: parseInt(item.id, 10)
+                }));
+                this.setState({ agentOptions });
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
+
     fetchData = () => {
         this.setState({ isFetched: true });
         const token = JSON.parse(window.localStorage.getItem('user')).Token
 
-        axios.get(`http://crm.voyagerstales.com/leads/api/`,
+        axios.get(`http://127.0.0.1:8000/leads/api/`,
             { headers: { Authorization: `Token ${token}` } })
             .then(response => {
                 const updatedData = (response.data.results).map(item => ({
@@ -193,9 +211,13 @@ class Home extends React.Component {
                 "hotel_name": newData[index]['hotel_name'],
                 "hotel_address": newData[index]['hotel_address'],
                 "phone_number": newData[index]['phone_number'],
+                "agent": newData[index]['agent'],
+                "age": newData[index]['age'],
+                "url": newData[index]['url'],
+                "description": newData[index]['description'],
             }
             const token = JSON.parse(window.localStorage.getItem('user')).Token
-            axios.patch(`http://crm.voyagerstales.com/leads/api/${newData[index]['id']}/`, data,
+            axios.patch(`http://127.0.0.1:8000/leads/api/${newData[index]['id']}/`, data,
                 { headers: { Authorization: `Token ${token}` } }).then(() => {
                     this.setState({ filteredData: newData, editableRowKey: null });
                 })
@@ -214,7 +236,7 @@ class Home extends React.Component {
         const updatedData = filteredData.filter(item => item !== selectedRecord);
 
         const token = JSON.parse(window.localStorage.getItem('user')).Token
-        axios.delete(`http://crm.voyagerstales.com/leads/api/${selectedRecord['id']}/`,
+        axios.delete(`http://127.0.0.1:8000/leads/api/${selectedRecord['id']}/`,
             { headers: { Authorization: `Token ${token}` } }).then(() => {
                 this.setState({ filteredData: updatedData, isModalVisible: false });
             })
@@ -244,6 +266,26 @@ class Home extends React.Component {
             record[dataIndex]
         );
     };
+
+    renderEditableCellAgent = (record, dataIndex) => {
+        const { editableRowKey, agentOptions } = this.state;
+        const isEditable = record.key === editableRowKey;
+        return isEditable && dataIndex === 'agent_first_name' ? (
+            <select
+                value={record['agent']}
+                onChange={(e) => this.handleCellChange(record, 'agent', e.target.value)}
+            >
+                {agentOptions.map((agent) => (
+                    <option key={agent.id} value={agent.id}>
+                        {agent.first_name}
+                    </option>
+                ))}
+            </select>
+        ) : (
+            record[dataIndex]
+        );
+    }
+
 
     renderEditableCell = (record, dataIndex) => {
         const { editableRowKey, categoryOptions } = this.state;
@@ -293,10 +335,11 @@ class Home extends React.Component {
 
         const token = JSON.parse(window.localStorage.getItem('user')).Token;
         const user = JSON.parse(window.localStorage.getItem('user'));
-        newLeadForm.agent = user.id;
+        // if user is not admin or superuser, set the agent to the current user
+        newLeadForm['agent'] = user && (user.role === 'admin' || user.is_superuser) ? newLeadForm['agent'] || null : user.id;
 
         // Make a POST request to create a new lead
-        axios.post(`http://crm.voyagerstales.com/leads/api/`, newLeadForm, {
+        axios.post(`http://127.0.0.1:8000/leads/api/`, newLeadForm, {
             headers: {
                 Authorization: `Token ${token}`,
             },
@@ -325,7 +368,7 @@ class Home extends React.Component {
 
 
     render() {
-        const { newLeadForm, isCreatingLead, categoryOptions } = this.state;
+        const { newLeadForm, isCreatingLead, categoryOptions, agentOptions } = this.state;
         const { isFetched, filteredData, pagination, searchText, isModalVisible, selectedRowKeys } = this.state;
         const user = JSON.parse(window.localStorage.getItem('user'));
 
@@ -343,10 +386,29 @@ class Home extends React.Component {
                 render: (text, record) => this.renderEditableCell(record, 'last_name'),
             },
             {
+                title: 'Age',
+                dataIndex: 'age',
+                key: 'age',
+                render: (text, record) => this.renderEditableCell(record, 'age'),
+            },
+            {
                 title: 'Hotel Name',
                 dataIndex: 'hotel_name',
                 key: 'hotel_name',
                 render: (text, record) => this.renderEditableCell(record, 'hotel_name'),
+            },
+            {
+                title: 'url',
+                dataIndex: 'url',
+                key: 'url',
+                render: (text, record) => this.renderEditableCell(record, 'url'),
+
+            },
+            {
+                title: 'Description',
+                dataIndex: 'description',
+                key: 'description',
+                render: (text, record) => this.renderEditableCell(record, 'description'),
             },
             {
                 title: 'Email',
@@ -367,6 +429,14 @@ class Home extends React.Component {
                 render: (text, record) => this.renderEditableCell(record, 'phone_number'),
 
             },
+
+            (user && (user.role == "admin" || user.is_superuser)) ? {
+                title: 'Agent Name',
+                dataIndex: 'agent_first_name',
+                key: 'agent_first_name',
+                render: (text, record) => this.renderEditableCellAgent(record, 'agent_first_name'),
+            } : null,
+    
             {
                 title: 'Status',
                 dataIndex: 'category_name',
@@ -395,7 +465,7 @@ class Home extends React.Component {
                     </span>
                 )
             }
-        ];
+        ].filter(column => column !== null);
         const rowSelection = {
             onChange: this.handleRowSelectionChange,
             selectedRowKeys: this.state.selectedRowKeys,
@@ -439,6 +509,12 @@ class Home extends React.Component {
                                 value={newLeadForm.last_name}
                                 onChange={(e) => this.handleNewLeadInputChange('last_name', e.target.value)}
                             />
+                            <Input 
+                                placeholder="Age"
+                                value={newLeadForm.age}
+                                type='number'
+                                onChange={(e) => this.handleNewLeadInputChange('age', e.target.value)}
+                            />
                             <Input
 
                                 placeholder="Email"
@@ -466,6 +542,18 @@ class Home extends React.Component {
                                 value={newLeadForm.hotel_address}
                                 onChange={(e) => this.handleNewLeadInputChange('hotel_address', e.target.value)}
                             />
+                            <Input
+                                placeholder='Url'
+                                value={newLeadForm.url}
+                                onChange={(e) => this.handleNewLeadInputChange('url', e.target.value)}
+                            />
+                    
+                            <Input
+                                placeholder='Description'
+                                value={newLeadForm.description}
+                                onChange={(e) => this.handleNewLeadInputChange('description', e.target.value)}
+                            />
+
                             <select
                                 value={newLeadForm.category}
                                 onChange={(e) => this.handleNewLeadInputChange('category', e.target.value)}
@@ -477,6 +565,20 @@ class Home extends React.Component {
                                     </option>
                                 ))}
                             </select>
+
+                            {user && (user.role === 'admin' || user.is_superuser) && (
+                                <select
+                                    value={newLeadForm.agent}
+                                    onChange={(e) => this.handleNewLeadInputChange('agent', e.target.value)}
+                                >
+                                    <option value="">Select Agent</option>
+                                    {agentOptions.map((agent) => (
+                                        <option key={agent.id} value={agent.id}>
+                                            {agent.first_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
                             <Button className={'save-button'} onClick={this.handleCreateLead}>
                                 Save
                             </Button>
@@ -491,7 +593,8 @@ class Home extends React.Component {
                         dataSource={filteredData}
                         columns={columns}
                         pagination={false}
-                        rowSelection={rowSelection} />
+                        // rowSelection={rowSelection} 
+                        />
                     {selectedRowKeys.length > 0 && (
                         <div style={{ marginTop: 16, textAlign: 'right' }}>
                             {`${selectedRowKeys.length} row${selectedRowKeys.length > 1 ? 's' : ''} selected out of ${filteredData.length} 
