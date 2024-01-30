@@ -6,6 +6,8 @@ import {message} from "antd";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
 
+const baseurl = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : 'http://crm.voyagerstales.com';
+
 const App = () => {
   const [isLogginActive, setIsLogginActive] = useState(true);
   const [rightClass, setRightClass] = useState("");
@@ -29,7 +31,7 @@ const App = () => {
     'password': password,
   };
   try {
-    const response = await axios.post('http://127.0.0.1:8000/account/login', data);
+    const response = await axios.post(`${baseurl}/account/login`, data);
     if(response?.data?.user?.Token) {
       window.localStorage.setItem("user", JSON.stringify(response.data.user));
       setIsAuthenticated(true);
@@ -48,7 +50,7 @@ const App = () => {
       'password': password,
     };
     try {
-      const response = await axios.post('http://127.0.0.1:8000/account/sign-up', data);
+      const response = await axios.post(`${baseurl}/sign-up`, data);
       if(response?.data?.user?.Token) {
         window.localStorage.setItem("user", JSON.stringify(response.data.user));
         setIsAuthenticated(true);

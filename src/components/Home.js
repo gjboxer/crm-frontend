@@ -4,6 +4,11 @@ import axios from 'axios';
 import { DeleteOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons'; // Import the search icon
 import './style.css';
 
+// // load .env file
+// require('dotenv').config();
+// use the baseurl from .env file
+const baseurl = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : 'http://crm.voyagerstales.com';
+
 class Home extends React.Component {
     constructor(props) {
         super(props);
@@ -37,7 +42,8 @@ class Home extends React.Component {
         const token = JSON.parse(window.localStorage.getItem('user')).Token
         //  prod url='http://crm.voyagerstales.com/categories/api/'
         // dev url='http://127.0.0.1:8000/categories/api/'
-        axios.get(`http://127.0.0.1:8000/categories/api/`, { headers: { Authorization: `Token ${token}` } })
+
+        axios.get(`${baseurl}/categories/api/`, { headers: { Authorization: `Token ${token}` } })
             .then(response => {
                 const categoryOptions = response.data.results.map(item => item);
                 this.setState({ categoryOptions });
@@ -55,7 +61,7 @@ class Home extends React.Component {
 
     fetchAgents = () => {
         const token = JSON.parse(window.localStorage.getItem('user')).Token
-        axios.get(`http://127.0.0.1:8000/account/list`
+        axios.get(`${baseurl}/account/list`
             , { headers: { Authorization: `Token ${token}` } })
             .then(response => {
                 const agentOptions = response.data.map(item => ({
@@ -74,7 +80,7 @@ class Home extends React.Component {
         this.setState({ isFetched: true });
         const token = JSON.parse(window.localStorage.getItem('user')).Token
 
-        axios.get(`http://127.0.0.1:8000/leads/api/`,
+        axios.get(`${baseurl}/leads/api/`,
             { headers: { Authorization: `Token ${token}` } })
             .then(response => {
                 const updatedData = (response.data.results).map(item => ({
@@ -217,7 +223,7 @@ class Home extends React.Component {
                 "description": newData[index]['description'],
             }
             const token = JSON.parse(window.localStorage.getItem('user')).Token
-            axios.patch(`http://127.0.0.1:8000/leads/api/${newData[index]['id']}/`, data,
+            axios.patch(`${baseurl}/leads/api/${newData[index]['id']}/`, data,
                 { headers: { Authorization: `Token ${token}` } }).then(() => {
                     this.setState({ filteredData: newData, editableRowKey: null });
                 })
@@ -236,7 +242,7 @@ class Home extends React.Component {
         const updatedData = filteredData.filter(item => item !== selectedRecord);
 
         const token = JSON.parse(window.localStorage.getItem('user')).Token
-        axios.delete(`http://127.0.0.1:8000/leads/api/${selectedRecord['id']}/`,
+        axios.delete(`${baseurl}/leads/api/${selectedRecord['id']}/`,
             { headers: { Authorization: `Token ${token}` } }).then(() => {
                 this.setState({ filteredData: updatedData, isModalVisible: false });
             })
@@ -339,7 +345,7 @@ class Home extends React.Component {
         newLeadForm['agent'] = user && (user.role === 'admin' || user.is_superuser) ? newLeadForm['agent'] || null : user.id;
 
         // Make a POST request to create a new lead
-        axios.post(`http://127.0.0.1:8000/leads/api/`, newLeadForm, {
+        axios.post(`${baseurl}/leads/api/`, newLeadForm, {
             headers: {
                 Authorization: `Token ${token}`,
             },
