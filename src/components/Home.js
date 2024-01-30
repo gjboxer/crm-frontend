@@ -34,7 +34,9 @@ class Home extends React.Component {
     componentDidMount() {
         this.fetchData();
         const token = JSON.parse(window.localStorage.getItem('user')).Token
-        axios.get(`http://127.0.0.1:8000/categories/api/`, { headers: { Authorization: `Token ${token}` } })
+        //  prod url='http://crm.voyagerstales.com/categories/api/'
+        // dev url='http://127.0.0.1:8000/categories/api/'
+        axios.get(`http://crm.voyagerstales.com/categories/api/`, { headers: { Authorization: `Token ${token}` } })
             .then(response => {
                 const categoryOptions = response.data.results.map(item => item);
                 this.setState({ categoryOptions });
@@ -54,7 +56,7 @@ class Home extends React.Component {
         this.setState({ isFetched: true });
         const token = JSON.parse(window.localStorage.getItem('user')).Token
 
-        axios.get(`http://127.0.0.1:8000/leads/api/`,
+        axios.get(`http://crm.voyagerstales.com/leads/api/`,
             { headers: { Authorization: `Token ${token}` } })
             .then(response => {
                 const updatedData = (response.data.results).map(item => ({
@@ -193,7 +195,7 @@ class Home extends React.Component {
                 "phone_number": newData[index]['phone_number'],
             }
             const token = JSON.parse(window.localStorage.getItem('user')).Token
-            axios.patch(`http://127.0.0.1:8000/leads/api/${newData[index]['id']}/`, data,
+            axios.patch(`http://crm.voyagerstales.com/leads/api/${newData[index]['id']}/`, data,
                 { headers: { Authorization: `Token ${token}` } }).then(() => {
                     this.setState({ filteredData: newData, editableRowKey: null });
                 })
@@ -212,7 +214,7 @@ class Home extends React.Component {
         const updatedData = filteredData.filter(item => item !== selectedRecord);
 
         const token = JSON.parse(window.localStorage.getItem('user')).Token
-        axios.delete(`http://127.0.0.1:8000/leads/api/${selectedRecord['id']}/`,
+        axios.delete(`http://crm.voyagerstales.com/leads/api/${selectedRecord['id']}/`,
             { headers: { Authorization: `Token ${token}` } }).then(() => {
                 this.setState({ filteredData: updatedData, isModalVisible: false });
             })
@@ -294,7 +296,7 @@ class Home extends React.Component {
         newLeadForm.agent = user.id;
 
         // Make a POST request to create a new lead
-        axios.post(`http://127.0.0.1:8000/leads/api/`, newLeadForm, {
+        axios.post(`http://crm.voyagerstales.com/leads/api/`, newLeadForm, {
             headers: {
                 Authorization: `Token ${token}`,
             },
