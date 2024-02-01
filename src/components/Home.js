@@ -442,12 +442,21 @@ class Home extends React.Component {
                 key: 'agent_first_name',
                 render: (text, record) => this.renderEditableCellAgent(record, 'agent_first_name'),
             } : null,
-    
+
             {
                 title: 'Status',
                 dataIndex: 'category_name',
                 key: 'category_name',
                 render: (text, record) => this.renderEditableCellStatus(record, 'category_name'),
+            },
+            {
+                title: 'Added on',
+                dataIndex: 'created_at',
+                key: 'created_at',
+                render: (text) => {
+                    const formattedDate = new Date(text).toLocaleString();
+                    return <span>{formattedDate}</span>;
+                },
             },
             {
                 title: 'Actions',
@@ -515,7 +524,7 @@ class Home extends React.Component {
                                 value={newLeadForm.last_name}
                                 onChange={(e) => this.handleNewLeadInputChange('last_name', e.target.value)}
                             />
-                            <Input 
+                            <Input
                                 placeholder="Age"
                                 value={newLeadForm.age}
                                 type='number'
@@ -553,7 +562,7 @@ class Home extends React.Component {
                                 value={newLeadForm.url}
                                 onChange={(e) => this.handleNewLeadInputChange('url', e.target.value)}
                             />
-                    
+
                             <Input
                                 placeholder='Description'
                                 value={newLeadForm.description}
@@ -599,8 +608,8 @@ class Home extends React.Component {
                         dataSource={filteredData}
                         columns={columns}
                         pagination={false}
-                        // rowSelection={rowSelection} 
-                        />
+                    // rowSelection={rowSelection} 
+                    />
                     {selectedRowKeys.length > 0 && (
                         <div style={{ marginTop: 16, textAlign: 'right' }}>
                             {`${selectedRowKeys.length} row${selectedRowKeys.length > 1 ? 's' : ''} selected out of ${filteredData.length} 
