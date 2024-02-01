@@ -7,7 +7,7 @@ import './style.css';
 // // load .env file
 // require('dotenv').config();
 // use the baseurl from .env file
-const baseurl = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : 'http://crm.voyagerstales.com';
+const baseurl = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : 'https://crm.voyagerstales.com';
 
 class Home extends React.Component {
     constructor(props) {

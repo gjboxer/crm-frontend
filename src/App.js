@@ -6,7 +6,7 @@ import {message} from "antd";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
 
-const baseurl = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : 'http://crm.voyagerstales.com';
+const baseurl = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : 'https://crm.voyagerstales.com';
 
 const App = () => {
   const [isLogginActive, setIsLogginActive] = useState(true);
